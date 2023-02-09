@@ -41,3 +41,18 @@ class ListModelTestCase(TestCase):
     def test_incorrect_listing_bid_digits(self):
         listing = Listing.objects.create(title="Testing", description="description", start_bid=10.001)
         self.assertRaises(ValidationError, listing.full_clean)
+    
+    def test_tag_adding(self):
+        listing = Listing.objects.first()
+        listing.tags.add("watch", "Car", "!!!")
+        listing_tags = set(listing.tags.names())
+        tag_names = {"watch", "Car", "!!!"}
+        self.assertEqual(listing_tags, tag_names)
+
+    def test_tag_delete(self):
+        listing = Listing.objects.first()
+        listing.tags.add("watch", "Car", "!!!")
+        listing.tags.remove("watch")
+        listing_tags = set(listing.tags.names())
+        tag_names = {"Car", "!!!"}
+        self.assertEqual(listing_tags, tag_names)
