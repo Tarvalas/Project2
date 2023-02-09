@@ -23,7 +23,8 @@ class UserModelTestCase(TestCase):
 
 class ListModelTestCase(TestCase):
     def setUp(self):
-        listing = Listing.objects.create(title="Testing", description="description", start_bid=10.00)
+        user = User.objects.create_user(username="test", password="12345")
+        listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=10.00)
         listing.save()
 
     def test_correct_listing(self):
@@ -31,15 +32,18 @@ class ListModelTestCase(TestCase):
         self.assertTrue(listing is not None)
 
     def test_incorrect_listing_title(self):
-        listing = Listing.objects.create(title="", description="description", start_bid=10.00)
+        user = User.objects.create_user(username="test2", password="12345")
+        listing = Listing.objects.create(user=user, title="", description="description", start_bid=10.00)
         self.assertRaises(ValidationError, listing.full_clean)
 
     def test_incorrect_listing_bid_negative(self):
-        listing = Listing.objects.create(title="Testing", description="description", start_bid=-10.00)
+        user = User.objects.create_user(username="test2", password="12345")
+        listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=-10.00)
         self.assertRaises(ValidationError, listing.full_clean)
 
     def test_incorrect_listing_bid_digits(self):
-        listing = Listing.objects.create(title="Testing", description="description", start_bid=10.001)
+        user = User.objects.create_user(username="test2", password="12345")
+        listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=10.001)
         self.assertRaises(ValidationError, listing.full_clean)
     
     def test_tag_adding(self):
