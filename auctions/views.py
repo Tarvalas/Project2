@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User
+from .forms import RegisterForm
 
 
 def index(request):
@@ -38,26 +39,56 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
-
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            # Attempt to create new user
+            try:
+                form.save()
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password1']
+                user = authenticate(request, username = username, password = password)
+            except IntegrityError:
+                return render(request, "auctions/register.html", {
+                    "message": "Username already taken.",
+                    "form": form
+                })
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
+        else:
             return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
+                "message": "Form is not valid.",
+                "form": form        
             })
-
-        # Attempt to create new user
-        try:
-            user = User.objects.create_user(username, email, password)
-            user.save()
-        except IntegrityError:
-            return render(request, "auctions/register.html", {
-                "message": "Username already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/register.html")
+        return render(request, "auctions/register.html", {
+            "form": RegisterForm()
+        })
+
+
+
+
+# def register(request):
+#     if request.method == "POST":
+#         username = request.POST["username"]
+#         email = request.POST["email"]
+
+#         # Ensure password matches confirmation
+#         password = request.POST["password"]
+#         confirmation = request.POST["confirmation"]
+#         if password != confirmation:
+#             return render(request, "auctions/register.html", {
+#                 "message": "Passwords must match."
+#             })
+
+#         # Attempt to create new user
+#         try:
+#             user = User.objects.create_user(username, email, password)
+#             user.save()
+#         except IntegrityError:
+#             return render(request, "auctions/register.html", {
+#                 "message": "Username already taken."
+#             })
+#         login(request, user)
+#         return HttpResponseRedirect(reverse("index"))
+#     else:
+#         return render(request, "auctions/register.html")

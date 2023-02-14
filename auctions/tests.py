@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import User, Listing, Bid, Comment
+from .forms import RegisterForm
 
 # Create your tests here.
 class UserModelTestCase(TestCase):
@@ -60,3 +62,26 @@ class ListModelTestCase(TestCase):
         listing_tags = set(listing.tags.names())
         tag_names = {"Car", "!!!"}
         self.assertEqual(listing_tags, tag_names)
+
+class UserRegistrationFormTests(TestCase):
+    def setUp(self):
+        form_data = {
+            'username': 'testing_name',
+            'email': 'testing_email@example.com',
+            'password1': 'confirmation',
+            'password2': 'confirmation'
+        }
+        self.form = RegisterForm(form_data)
+        if self.form.is_valid():
+            self.form.save()
+    
+    def test_registration_form_class(self):
+         self.assertTrue(issubclass(type(self.form), UserCreationForm))
+    
+    def test_registration_form_submit_class(self):
+        form_db_object = User.objects.first()
+        self.assertTrue(issubclass(type(form_db_object), User))
+
+    def test_user_registration(self):
+        user = authenticate(username = 'testing_name', password = 'confirmation')
+        self.assertTrue(user is not None and user.is_authenticated)
