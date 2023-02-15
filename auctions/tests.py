@@ -1,9 +1,11 @@
 from django.test import TestCase
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user
 from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse
+from http import HTTPStatus
 from django.core.exceptions import ValidationError
 from .models import User, Listing, Bid, Comment
-from .forms import RegisterForm
+from .forms import RegisterForm, LoginForm
 
 # Create your tests here.
 class UserModelTestCase(TestCase):
@@ -63,6 +65,7 @@ class ListModelTestCase(TestCase):
         tag_names = {"Car", "!!!"}
         self.assertEqual(listing_tags, tag_names)
 
+
 class UserRegistrationFormTests(TestCase):
     def setUp(self):
         form_data = {
@@ -85,3 +88,38 @@ class UserRegistrationFormTests(TestCase):
     def test_user_registration(self):
         user = authenticate(username = 'testing_name', password = 'confirmation')
         self.assertTrue(user is not None and user.is_authenticated)
+
+
+class UserLoginTest(TestCase):
+    def setUp(self):
+        self.username = 'testing_name'
+        self.email = 'testing_email@example.com'
+        self.password = 'confirmation'
+
+        form_data = {
+            'username': self.username,
+            'email': self.email,
+            'password1': self.password,
+            'password2': self.password
+        }
+        self.form = RegisterForm(form_data)
+        if self.form.is_valid():
+            self.form.save()
+    
+    def test_user_login_page(self):
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, 'auctions/login.html')
+
+    def test_user_login_page_form(self):
+        response = self.client.get(reverse('login'))
+        form = response.context.get('form')
+        self.assertIsInstance(form, LoginForm)
+
+    def test_user_login_works(self):
+        user_data = {
+            'username': self.username,
+            'password': self.password
+        }
+        response = self.client.post(reverse('login'), user_data)
+        self.assertRedirects(response, reverse('index'))
