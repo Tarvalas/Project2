@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, ListingForm
 
 
 def index(request):
@@ -41,25 +41,6 @@ def login_view(request):
             "form": form
         }) 
 
-# def login_view(request):
-#     if request.method == "POST":
-
-#         # Attempt to sign user in
-#         username = request.POST["username"]
-#         password = request.POST["password"]
-#         user = authenticate(request, username=username, password=password)
-
-#         # Check if authentication successful
-#         if user is not None:
-#             login(request, user)
-#             return HttpResponseRedirect(reverse("index"))
-#         else:
-#             return render(request, "auctions/login.html", {
-#                 "message": "Invalid username and/or password."
-#             })
-#     else:
-#         return render(request, "auctions/login.html")
-
 
 def logout_view(request):
     logout(request)
@@ -91,4 +72,30 @@ def register(request):
     else:
         return render(request, "auctions/register.html", {
             "form": RegisterForm()
+        })
+
+
+def listing_view(request):
+    form = ListingForm()
+
+    if request.method == "POST":
+        form = ListingForm(request.POST)
+        if form.is_valid():
+            try:
+                form.instance.user = request.user
+                form.save()
+            except IntegrityError:
+                return render(request, "auctions/listing_edit.html", {
+                    "message": "Error posting item.",
+                    "form": form
+                })
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "auctions/listing_edit.html", {
+                "message": "Error with form.",
+                "form": form
+            })
+    else:
+        return render(request, "auctions/listing_edit.html", {
+            "form": form
         })

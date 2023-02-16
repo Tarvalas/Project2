@@ -5,7 +5,7 @@ from django.urls import reverse
 from http import HTTPStatus
 from django.core.exceptions import ValidationError
 from .models import User, Listing, Bid, Comment
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, ListingForm
 
 # Create your tests here.
 class UserModelTestCase(TestCase):
@@ -123,3 +123,46 @@ class UserLoginTest(TestCase):
         }
         response = self.client.post(reverse('login'), user_data)
         self.assertRedirects(response, reverse('index'))
+
+
+class ListingTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="test", password="12345")
+        user_data = {
+            'username': 'test',
+            'password': '12345'
+        }
+        response = self.client.post(reverse('login'), user_data)
+        self.assertRedirects(response, reverse('index'))
+    
+    def test_user_is_loggedin(self):
+        user = get_user(self.client)
+        self.assertTrue(user.is_authenticated)
+    
+    def test_listing_edit_page(self):
+        response = self.client.get(reverse('listing'))
+        self.assertTemplateUsed(response, 'auctions/listing_edit.html')
+    
+    def test_listing_edit_page_form(self):
+        response = self.client.get(reverse('listing'))
+        form = response.context.get('form')
+        self.assertIsInstance(form, ListingForm)
+
+    def test_listing_form(self):
+        form = ListingForm({
+            'title': 'Test',
+            'description': 'Test Description',
+            'start_bid': 10.00,
+            'image_url': 'http://www.google.com', # Not required
+            'tags': 'tag1, tag2' # Not required
+        })
+        form.instance.user = get_user(self.client)
+        self.assertTrue(form.is_valid())
+        listing = form.save()
+        self.assertEqual(listing.title, 'Test')
+        self.assertEqual(listing.description, 'Test Description')
+        self.assertEqual(listing.start_bid, 10.00)
+        self.assertEqual(listing.image_url, 'http://www.google.com')
+        self.assertEqual(set(listing.tags.names()), {'tag1', 'tag2'})
+
+

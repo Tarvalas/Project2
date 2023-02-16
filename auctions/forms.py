@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
 from .models import User, Listing, Bid, Comment
+from taggit.forms import TagWidget
 
 
 class RegisterForm(UserCreationForm):
@@ -40,6 +41,18 @@ class LoginForm(AuthenticationForm):
 
 
 class ListingForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ListingForm, self).__init__(*args, **kwargs)
+
+        for fieldname in ['image_url', 'tags']:
+            self.fields[fieldname].required = False
+
+        self.fields['title'].widget = forms.TextInput(attrs={'class': 'form-control', 'autofocus': True, 'name': 'title', 'placeholder':'Enter Title'})
+        self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'name': 'description', 'placeholder':'Enter Item Description'})
+        self.fields['start_bid'].widget = forms.NumberInput(attrs={'class': 'form-control', 'name': 'start_bid', 'placeholder':'Enter Starting Bid'})
+        self.fields['image_url'].widget = forms.URLInput(attrs={'class': 'form-control', 'name': 'image_url', 'placeholder':'Enter Image URL'})
+        self.fields['tags'].widget = TagWidget(attrs={'class': 'form-control', 'name': 'tags', 'placeholder':'Enter Item Tags'})
+
     class Meta:
         model = Listing
         fields = [
@@ -47,5 +60,5 @@ class ListingForm(forms.ModelForm):
             'description',
             'start_bid',
             'image_url',
-            'tags'
+            'tags',
         ]
