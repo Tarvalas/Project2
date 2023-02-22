@@ -1,0 +1,46 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if message %}
+        <div style="color:red;"><strong>{{ message }}</strong></div>
+    {% endif %}
+    <div class="full_listing">
+        <h2>Listing: {{ listing.title }}</h2>
+        <br>
+        {% if listing.image_url %}
+            <img class="full_image" src="{{ listing.image_url }}">
+        {% else %}
+            <h3 class="full_image">No image to display.</h3>
+        {% endif %}
+        <div class="description_box">
+            <h6>{{ listing.description }}</h6>
+            <br>
+            <h3><strong>${{ listing.start_bid }}</strong></h3>
+
+            {% if user.is_authenticated %}
+                <form action="{% url 'see_listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.errors }}
+                            {{ field }}
+                        </div>
+                    {% endfor %}        
+                    <input class="btn btn-primary" type="submit" value="Place Bid">
+                </form>
+            {% else %}
+                <h5>To place a bid, <a href="{% url 'login' %}">Login</a></h5>
+            {% endif %}
+
+        </div>
+        <br>
+
+        {% if listing.tags %}
+            <ul id="full_tags">
+                {% for tag in listing.tags.all %}
+                    <li id="tag">#{{ tag }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}
