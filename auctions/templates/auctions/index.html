@@ -1,31 +1,34 @@
 {% extends "auctions/layout.html" %}
-{% load static %}
+
 
 {% block body %}
     <h2>Active Listings</h2>
+
     {% if listings %}
         {% for item in listings %}
-            <div class="listing">
-                <div id="listing_text">
-                    <h4>{{ item.title }}</h4>
-                    <h6>{{ item.description|truncatechars:50 }}</h6>
-                    <h6><strong>Price: </strong>${{ item.start_bid }}<h6>
-                    <br>
-                    {% if item.tags %}
-                        <ul id="tags">
-                        {% for tag in item.tags.all %}
-                            <li id="tag">#{{ tag }}</li>
-                        {% endfor %}
-                        </ul>
+            <a href="{% url 'see_listing' item.id %}">
+                <div class="listing">
+                    <div id="listing_text">
+                        <h4>{{ item.title }}</h4>
+                        <h6>{{ item.description|truncatechars:50 }}</h6>
+                        <h6><strong>Price: </strong>${{ item.start_bid }}<h6>
+                        <br>
+                        {% if item.tags %}
+                            <ul id="tags">
+                            {% for tag in item.tags.all %}
+                                <li id="tag">#{{ tag }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <br><br><br><br><hr>
+                        <p style="color: gray;">Created: {{ item.list_time }}</p>
+                    </div>
+                    {% if item.image_url %}
+                        <img class="image" src="{{ item.image_url }}">
                     {% endif %}
-                    <br><br><br><br><hr>
-                    <p style="color: gray;">Created: {{ item.list_time }}</p>
                 </div>
-                {% if item.image_url %}
-                    <img class="image" src="{{ item.image_url }}">
-                {% endif %}
-            </div>
-            <br>
+                <br>
+            </a>
         {% endfor %}
     {% else %}
         <strong>There are no listed items.</strong>

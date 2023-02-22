@@ -62,3 +62,17 @@ class ListingForm(forms.ModelForm):
             'image_url',
             'tags',
         ]
+
+
+class BiddingForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BiddingForm, self).__init__(*args, **kwargs)
+        self.fields['start_bid'].required = True
+
+        self.fields['start_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'start_bid', 'placeholder':'Enter Bid'})
+    
+    class Meta:
+        model = Listing
+        fields = [
+            'start_bid'
+        ]

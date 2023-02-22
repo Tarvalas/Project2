@@ -3,10 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from .models import User, Listing
-from .forms import RegisterForm, LoginForm, ListingForm
+from .forms import RegisterForm, LoginForm, ListingForm, BiddingForm
 
 
 def index(request):
@@ -80,7 +80,7 @@ def register(request):
         })
 
 
-def listing_view(request):
+def create_listing_view(request):
     form = ListingForm()
 
     if request.method == "POST":
@@ -103,4 +103,30 @@ def listing_view(request):
     else:
         return render(request, "auctions/listing_edit.html", {
             "form": form
+        })
+
+def see_listing(request, item_id):
+    if request.method == 'POST':
+        form = BiddingForm(request.POST)
+        if form.is_valid():
+            listing = Listing.objects.get(id=item_id)
+            if form.cleaned_data['start_bid'] > listing.start_bid:
+                listing.start_bid = form.cleaned_data['start_bid']
+                listing.save(update_fields=['start_bid'])
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "form": form,
+                })
+            else:
+                return render(request, "auctions/listing.html", {
+                    "message": "Your bid must be greater than the current bid.",
+                    "listing": listing,
+                    "form": form,
+                })
+    else:
+        listing = Listing.objects.get(id=item_id)
+        form = BiddingForm()
+        return render(request, "auctions/listing.html", {
+            "listing": listing,
+            "form": form,
         })

@@ -11,7 +11,18 @@ body {
     margin-left: 1px;
 }
 
+.full_listing {
+    position: relative;
+    border: 1px solid lightgray;
+    width: 90vw;
+    height: 75vh;
+    float: left;
+    margin: 1vh;
+    margin-left: 1px;
+}
+
 #listing_text {
+    color: black;
     float: right;
     width: 15vw;
     margin-right: 50vw;
@@ -43,4 +54,33 @@ body {
     height: 100%;
     float: left;
     margin-left: 2vw;
+}
+
+
+.full_image {
+    height: 80%;
+    width: 40%;
+    object-fit: contain;
+    float: right;
+    margin-right: 10vw;
+}
+
+
+.description_box {
+    height: 10%;
+    width: 30%;
+    float: left;
+    word-wrap: break-word;
+}
+
+
+#full_tags {
+    float: left;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    bottom: 5px;
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
 }
