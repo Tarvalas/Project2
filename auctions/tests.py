@@ -140,11 +140,11 @@ class ListingTest(TestCase):
         self.assertTrue(user.is_authenticated)
     
     def test_listing_edit_page(self):
-        response = self.client.get(reverse('listing'))
+        response = self.client.get(reverse('create_listing'))
         self.assertTemplateUsed(response, 'auctions/listing_edit.html')
     
     def test_listing_edit_page_form(self):
-        response = self.client.get(reverse('listing'))
+        response = self.client.get(reverse('create_listing'))
         form = response.context.get('form')
         self.assertIsInstance(form, ListingForm)
 
