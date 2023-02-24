@@ -11,7 +11,7 @@
                     <div id="listing_text">
                         <h4>{{ item.title }}</h4>
                         <h6>{{ item.description|truncatechars:50 }}</h6>
-                        <h6><strong>Price: </strong>${{ item.start_bid }}<h6>
+                        <h6><strong>Price: </strong>${{ item.current_bid }}<h6>
                         <br>
                         {% if item.tags %}
                             <ul id="tags">

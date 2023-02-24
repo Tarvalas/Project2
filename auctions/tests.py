@@ -28,7 +28,7 @@ class UserModelTestCase(TestCase):
 class ListModelTestCase(TestCase):
     def setUp(self):
         user = User.objects.create_user(username="test", password="12345")
-        listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=10.00)
+        listing = Listing.objects.create(user=user, title="Testing", description="description", current_bid=10.00)
         listing.save()
 
     def test_correct_listing(self):
@@ -37,17 +37,17 @@ class ListModelTestCase(TestCase):
 
     def test_incorrect_listing_title(self):
         user = User.objects.create_user(username="test2", password="12345")
-        listing = Listing.objects.create(user=user, title="", description="description", start_bid=10.00)
+        listing = Listing.objects.create(user=user, title="", description="description", current_bid=10.00)
         self.assertRaises(ValidationError, listing.full_clean)
 
     def test_incorrect_listing_bid_negative(self):
         user = User.objects.create_user(username="test2", password="12345")
-        listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=-10.00)
+        listing = Listing.objects.create(user=user, title="Testing", description="description", current_bid=-10.00)
         self.assertRaises(ValidationError, listing.full_clean)
 
     def test_incorrect_listing_bid_digits(self):
         user = User.objects.create_user(username="test2", password="12345")
-        listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=10.001)
+        listing = Listing.objects.create(user=user, title="Testing", description="description", current_bid=10.001)
         self.assertRaises(ValidationError, listing.full_clean)
     
     def test_tag_adding(self):
@@ -125,7 +125,7 @@ class UserLoginTest(TestCase):
         self.assertRedirects(response, reverse('index'))
 
 
-class ListingTest(TestCase):
+class CreateListingTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="test", password="12345")
         user_data = {
@@ -139,11 +139,11 @@ class ListingTest(TestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_authenticated)
     
-    def test_listing_edit_page(self):
+    def test_listing_create_page(self):
         response = self.client.get(reverse('create_listing'))
-        self.assertTemplateUsed(response, 'auctions/listing_edit.html')
+        self.assertTemplateUsed(response, 'auctions/listing_create.html')
     
-    def test_listing_edit_page_form(self):
+    def test_listing_create_page_form(self):
         response = self.client.get(reverse('create_listing'))
         form = response.context.get('form')
         self.assertIsInstance(form, ListingForm)
@@ -152,7 +152,7 @@ class ListingTest(TestCase):
         form = ListingForm({
             'title': 'Test',
             'description': 'Test Description',
-            'start_bid': 10.00,
+            'current_bid': 10.00,
             'image_url': 'http://www.google.com', # Not required
             'tags': 'tag1, tag2' # Not required
         })
@@ -161,7 +161,7 @@ class ListingTest(TestCase):
         listing = form.save()
         self.assertEqual(listing.title, 'Test')
         self.assertEqual(listing.description, 'Test Description')
-        self.assertEqual(listing.start_bid, 10.00)
+        self.assertEqual(listing.current_bid, 10.00)
         self.assertEqual(listing.image_url, 'http://www.google.com')
         self.assertEqual(set(listing.tags.names()), {'tag1', 'tag2'})
 

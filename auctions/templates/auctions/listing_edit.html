@@ -1,19 +1,21 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Listing</h2>
+    <h2>Edit Listing: <strong>{{ listing.title }}</strong></h2>
 
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
-    <form action="{% url 'create_listing' %}" method="post">
+    <form action="{% url 'edit_listing' listing.id %}" method="post">
         {% csrf_token %}
         {% for field in form %}
-        <div class="form-group">
-            {{ field.errors }}
-            {{ field }}
-        </div>
-    {% endfor %}        
+            {% if field.name == 'current_bid' %}
+            {% else %}
+                <div class="form-group">
+                    {{field.name}}: {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
     <input class="btn btn-primary" type="submit" value="List Item">
     </form>
 {% endblock %}

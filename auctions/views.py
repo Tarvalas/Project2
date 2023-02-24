@@ -90,29 +90,68 @@ def create_listing_view(request):
                 form.instance.user = request.user
                 form.save()
             except IntegrityError:
-                return render(request, "auctions/listing_edit.html", {
+                return render(request, "auctions/listing_create.html", {
                     "message": "Error posting item.",
                     "form": form
                 })
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "auctions/listing_edit.html", {
+            return render(request, "auctions/listing_create.html", {
                 "message": "Error with form.",
                 "form": form
             })
     else:
-        return render(request, "auctions/listing_edit.html", {
+        return render(request, "auctions/listing_create.html", {
             "form": form
         })
+
+
+def edit_listing_view(request, item_id):
+    listing = Listing.objects.get(id=item_id)
+
+    if request.method == "POST":
+        form = ListingForm(request.POST, instance=listing)
+        if form.is_valid():
+            try:
+                #form.instance.user = request.user
+                form.save()
+            except IntegrityError:
+                return render(request, "auctions/listing_edit.html", {
+                    "message": "Error updating item.",
+                    "form": form
+                })
+            return HttpResponseRedirect(reverse("edit_listing", args=[item_id]))
+        else:
+            return render(request, "auctions/listing_edit.html", {
+                "message": "Error with form.",
+                "form": form
+            })
+
+    if listing.user != request.user:
+        form = BiddingForm()
+        return render(request, "auctions/listing.html", {
+            "message": "You are not authorized to edit this listing.",
+            "listing": listing,
+            "form": form,
+        })
+    else:
+        form = ListingForm(instance=listing)
+        fields = ["title", "image_url"]
+        return render(request, "auctions/listing_edit.html", {
+            "listing": listing,
+            "form": form,
+            "fields": fields,
+        })
+
 
 def see_listing(request, item_id):
     if request.method == 'POST':
         form = BiddingForm(request.POST)
         if form.is_valid():
             listing = Listing.objects.get(id=item_id)
-            if form.cleaned_data['start_bid'] > listing.start_bid:
-                listing.start_bid = form.cleaned_data['start_bid']
-                listing.save(update_fields=['start_bid'])
+            if form.cleaned_data['current_bid'] > listing.current_bid:
+                listing.current_bid = form.cleaned_data['current_bid']
+                listing.save(update_fields=['current_bid'])
                 return render(request, "auctions/listing.html", {
                     "listing": listing,
                     "form": form,
@@ -125,8 +164,10 @@ def see_listing(request, item_id):
                 })
     else:
         listing = Listing.objects.get(id=item_id)
+        can_edit = listing.user == request.user
         form = BiddingForm()
         return render(request, "auctions/listing.html", {
             "listing": listing,
             "form": form,
+            "can_edit": can_edit,
         })

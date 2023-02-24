@@ -49,7 +49,7 @@ class ListingForm(forms.ModelForm):
 
         self.fields['title'].widget = forms.TextInput(attrs={'class': 'form-control', 'autofocus': True, 'name': 'title', 'placeholder':'Enter Title'})
         self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'name': 'description', 'placeholder':'Enter Item Description'})
-        self.fields['start_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'start_bid', 'placeholder':'Enter Starting Bid'})
+        self.fields['current_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'current_bid', 'placeholder':'Enter Starting Bid'})
         self.fields['image_url'].widget = forms.URLInput(attrs={'class': 'form-control', 'name': 'image_url', 'placeholder':'Enter Image URL'})
         self.fields['tags'].widget = TagWidget(attrs={'class': 'form-control', 'name': 'tags', 'placeholder':'Enter Item Tags'})
 
@@ -58,7 +58,7 @@ class ListingForm(forms.ModelForm):
         fields = [
             'title',
             'description',
-            'start_bid',
+            'current_bid',
             'image_url',
             'tags',
         ]
@@ -67,12 +67,12 @@ class ListingForm(forms.ModelForm):
 class BiddingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BiddingForm, self).__init__(*args, **kwargs)
-        self.fields['start_bid'].required = True
+        self.fields['current_bid'].required = True
 
-        self.fields['start_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'start_bid', 'placeholder':'Enter Bid'})
+        self.fields['current_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'current_bid', 'placeholder':'Enter Bid'})
     
     class Meta:
         model = Listing
         fields = [
-            'start_bid'
+            'current_bid'
         ]

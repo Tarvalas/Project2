@@ -15,9 +15,13 @@
         <div class="description_box">
             <h6>{{ listing.description }}</h6>
             <br>
-            <h3><strong>${{ listing.start_bid }}</strong></h3>
-
-            {% if user.is_authenticated %}
+            <h3><strong>${{ listing.current_bid }}</strong></h3>
+            
+            {% if listing.user == user%}
+                <p style="color: red;">You <strong>cannot</strong> bid on your own item.</p>
+            {% elif not user %}
+                <h5>To place a bid, <a href="{% url 'login' %}">Login</a></h5>
+            {% else %}
                 <form action="{% url 'see_listing' listing.id %}" method="post">
                     {% csrf_token %}
                     {% for field in form %}
@@ -28,9 +32,9 @@
                     {% endfor %}        
                     <input class="btn btn-primary" type="submit" value="Place Bid">
                 </form>
-            {% else %}
-                <h5>To place a bid, <a href="{% url 'login' %}">Login</a></h5>
             {% endif %}
+            <br><br>
+            <h6>Posted by: <strong>{{ listing.user }}</strong></h6>
 
         </div>
         <br>
@@ -41,6 +45,9 @@
                     <li id="tag">#{{ tag }}</li>
                 {% endfor %}
             </ul>
+        {% endif %}
+        {% if can_edit %}
+            <button class="btn btn-primary edit_btn" type="button"><a style="color: white;" href="{% url 'edit_listing' listing.id %}">Edit Listing</a></button>
         {% endif %}
     </div>
 {% endblock %}
