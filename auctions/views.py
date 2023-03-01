@@ -5,8 +5,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 
-from .models import User, Listing
-from .forms import RegisterForm, LoginForm, ListingForm, BiddingForm
+from .models import User, Listing, Comment
+from .forms import RegisterForm, LoginForm, ListingForm, BiddingForm, CommentForm
 
 
 def index(request):
@@ -58,10 +58,11 @@ def register(request):
         if form.is_valid():
             # Attempt to create new user
             try:
+                user = form.save()
                 username = form.cleaned_data['username']
                 password = form.cleaned_data['password1']
                 user = authenticate(request, username = username, password = password)
-                form.save()
+ 
             except IntegrityError:
                 return render(request, "auctions/register.html", {
                     "message": "Username already taken.",
@@ -84,7 +85,7 @@ def create_listing_view(request):
     form = ListingForm()
 
     if request.method == "POST":
-        form = ListingForm(request.POST)
+        form = ListingForm(request.POST, is_edit=False)
         if form.is_valid():
             try:
                 form.instance.user = request.user
@@ -108,19 +109,17 @@ def create_listing_view(request):
 
 def edit_listing_view(request, item_id):
     listing = Listing.objects.get(id=item_id)
-
     if request.method == "POST":
         form = ListingForm(request.POST, instance=listing)
         if form.is_valid():
             try:
-                #form.instance.user = request.user
                 form.save()
             except IntegrityError:
                 return render(request, "auctions/listing_edit.html", {
                     "message": "Error updating item.",
                     "form": form
                 })
-            return HttpResponseRedirect(reverse("edit_listing", args=[item_id]))
+            return HttpResponseRedirect(reverse("see_listing", args=[item_id]))
         else:
             return render(request, "auctions/listing_edit.html", {
                 "message": "Error with form.",
@@ -134,40 +133,55 @@ def edit_listing_view(request, item_id):
             "listing": listing,
             "form": form,
         })
+    elif listing.num_bids > 0:
+        return render(request, "auctions/listing.html", {
+            "message": "You cannot edit a listing that already has bids.",
+            "listing": listing,  
+        })
     else:
         form = ListingForm(instance=listing)
-        fields = ["title", "image_url"]
         return render(request, "auctions/listing_edit.html", {
             "listing": listing,
             "form": form,
-            "fields": fields,
         })
 
 
 def see_listing(request, item_id):
+    listing = Listing.objects.get(id=item_id)
+    bid_form = BiddingForm()
+    can_edit = listing.user == request.user
+    comments =listing.comments.all()
+    comment_form = CommentForm()
+    context = {
+        "message": None,
+        "listing": listing,
+        "bid_form": bid_form,
+        "can_edit": can_edit,
+        "comments": comments,
+        "comment_form": comment_form
+    }
     if request.method == 'POST':
-        form = BiddingForm(request.POST)
-        if form.is_valid():
-            listing = Listing.objects.get(id=item_id)
-            if form.cleaned_data['current_bid'] > listing.current_bid:
-                listing.current_bid = form.cleaned_data['current_bid']
-                listing.save(update_fields=['current_bid'])
-                return render(request, "auctions/listing.html", {
-                    "listing": listing,
-                    "form": form,
-                })
-            else:
-                return render(request, "auctions/listing.html", {
-                    "message": "Your bid must be greater than the current bid.",
-                    "listing": listing,
-                    "form": form,
-                })
+        if "bidding" in request.POST:
+            bid_form = BiddingForm(request.POST)
+            if bid_form.is_valid():
+                if bid_form.cleaned_data['bid'] > listing.start_bid:            
+                    listing.start_bid = bid_form.cleaned_data['bid']
+                    listing.num_bids += 1
+                    listing.save(update_fields=['start_bid', 'num_bids'])
+                    return render(request, "auctions/listing.html", context)
+                else:
+                    context["message"] = "Your bid must be greater than the current bid."
+                    return render(request, "auctions/listing.html", context=context)
+        if "commenting" in request.POST:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                if comment_form.cleaned_data["comment"]:
+                    comment_form.instance.user = request.user
+                    comment_form.instance.item = listing
+                    comment_form.save()
+                    return render(request, "auctions/listing.html", context=context)
+                else:
+                    context["message"] = "Your bid must be greater than the current bid."
+                    return render(request, "auctions/listing.html", context=context)
     else:
-        listing = Listing.objects.get(id=item_id)
-        can_edit = listing.user == request.user
-        form = BiddingForm()
-        return render(request, "auctions/listing.html", {
-            "listing": listing,
-            "form": form,
-            "can_edit": can_edit,
-        })
+        return render(request, "auctions/listing.html", context=context)

@@ -41,15 +41,15 @@ class LoginForm(AuthenticationForm):
 
 
 class ListingForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, is_edit=False, **kwargs):
         super(ListingForm, self).__init__(*args, **kwargs)
 
         for fieldname in ['image_url', 'tags']:
             self.fields[fieldname].required = False
-
+        
         self.fields['title'].widget = forms.TextInput(attrs={'class': 'form-control', 'autofocus': True, 'name': 'title', 'placeholder':'Enter Title'})
         self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'name': 'description', 'placeholder':'Enter Item Description'})
-        self.fields['current_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'current_bid', 'placeholder':'Enter Starting Bid'})
+        self.fields['start_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'start_bid', 'placeholder':'Enter Starting Bid'})
         self.fields['image_url'].widget = forms.URLInput(attrs={'class': 'form-control', 'name': 'image_url', 'placeholder':'Enter Image URL'})
         self.fields['tags'].widget = TagWidget(attrs={'class': 'form-control', 'name': 'tags', 'placeholder':'Enter Item Tags'})
 
@@ -58,7 +58,7 @@ class ListingForm(forms.ModelForm):
         fields = [
             'title',
             'description',
-            'current_bid',
+            'start_bid',
             'image_url',
             'tags',
         ]
@@ -67,12 +67,25 @@ class ListingForm(forms.ModelForm):
 class BiddingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BiddingForm, self).__init__(*args, **kwargs)
-        self.fields['current_bid'].required = True
+        self.fields['bid'].required = True
 
-        self.fields['current_bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'current_bid', 'placeholder':'Enter Bid'})
+        self.fields['bid'].widget = forms.NumberInput(attrs={'step': 0.01, 'class': 'form-control', 'name': 'bid', 'placeholder':'Enter Bid'})
     
     class Meta:
-        model = Listing
+        model = Bid
         fields = [
-            'current_bid'
+            'bid'
+        ]
+
+class CommentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CommentForm, self).__init__(*args, **kwargs)
+
+        self.fields["comment"].help_text = "Your comment must be limited to 3000 characters."
+        self.fields["comment"].widget = forms.Textarea(attrs={'class': 'form-control', 'name': 'comment', 'placeholder':'Enter a comment...'})
+    
+    class Meta:
+        model = Comment
+        fields = [
+            'comment'
         ]

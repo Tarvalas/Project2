@@ -8,14 +8,12 @@
     {% endif %}
     <form action="{% url 'edit_listing' listing.id %}" method="post">
         {% csrf_token %}
+        {{ form.non_field_errors }}
         {% for field in form %}
-            {% if field.name == 'current_bid' %}
-            {% else %}
-                <div class="form-group">
-                    {{field.name}}: {{ field }}
-                </div>
-            {% endif %}
+            <div class="form-group">
+                {{field.name}}: {{ field }}
+            </div>
         {% endfor %}
-    <input class="btn btn-primary" type="submit" value="List Item">
+    <input class="btn btn-primary" type="submit" value="Save Item">
     </form>
 {% endblock %}
