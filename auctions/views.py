@@ -158,7 +158,8 @@ def see_listing(request, item_id):
         "bid_form": bid_form,
         "can_edit": can_edit,
         "comments": comments,
-        "comment_form": comment_form
+        "comment_form": comment_form,
+        "is_watchlist": False
     }
     if request.method == 'POST':
         if "bidding" in request.POST:
@@ -185,3 +186,22 @@ def see_listing(request, item_id):
                     return render(request, "auctions/listing.html", context=context)
     else:
         return render(request, "auctions/listing.html", context=context)
+
+
+def watchlist_view(request):
+    if request.method == "POST":
+        if "add" in request.POST:
+            request.user.watchlist.add(Listing.objects.get(id=int(request.POST["add"])))
+            request.user.num_watchlist += 1
+            request.user.save()
+        else:
+            request.user.watchlist.remove(Listing.objects.get(id=int(request.POST["remove"])))
+            request.user.num_watchlist -= 1
+            request.user.save()
+    watchlist = request.user.watchlist.all()
+
+    context = {
+        "is_watchlist": True,
+        "listings": watchlist
+    }
+    return render(request, "auctions/index.html", context=context)

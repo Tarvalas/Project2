@@ -46,6 +46,7 @@ class ListingForm(forms.ModelForm):
 
         for fieldname in ['image_url', 'tags']:
             self.fields[fieldname].required = False
+        self.fields['image_url'].initial = 'https://www.publicdomainpictures.net/pictures/470000/nahled/image-not-found.png'
         
         self.fields['title'].widget = forms.TextInput(attrs={'class': 'form-control', 'autofocus': True, 'name': 'title', 'placeholder':'Enter Title'})
         self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'name': 'description', 'placeholder':'Enter Item Description'})
@@ -82,7 +83,8 @@ class CommentForm(forms.ModelForm):
         super(CommentForm, self).__init__(*args, **kwargs)
 
         self.fields["comment"].help_text = "Your comment must be limited to 3000 characters."
-        self.fields["comment"].widget = forms.Textarea(attrs={'class': 'form-control', 'name': 'comment', 'placeholder':'Enter a comment...'})
+        self.fields["comment"].label = ''
+        self.fields["comment"].widget = forms.Textarea(attrs={'class': 'form-control enter-comment', 'name': 'comment', 'placeholder':'Enter a comment...'})
     
     class Meta:
         model = Comment

@@ -4,6 +4,7 @@
     {% if message %}
         <div style="color:red;"><strong>{{ message }}</strong></div>
     {% endif %}
+
     <div class="full_listing">
         <h2>Listing: {{ listing.title }}</h2>
         <h3>This item has had {{ listing.num_bids }} bids.</h3>
@@ -46,26 +47,42 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
         {% if can_edit %}
             <button class="btn btn-primary edit_btn" type="button"><a style="color: white;" href="{% url 'edit_listing' listing.id %}">Edit Listing</a></button>
         {% endif %}
+
     </div>
     <br>
     <hr>
-    <h2>Comments:</h2>
-        <form action="{% url 'see_listing' listing.id %}" method="POST">
+
+    {% if user.is_authenticated %}
+        <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
-            {{ comment_form }}
-            <input class="btn btn-primary" type="submit" value="Post" name="commenting">
+            {% if listing not in user.watchlist.all %}
+                <button class="btn btn-primary add-watch" type="submit" name="add" value={{listing.id}}>Add to Watchlist</button>
+            {% else %}
+                <button class="btn btn-primary add-watch" type="submit" name="remove" value={{listing.id}}>Remove from Watchlist</button>
+            {% endif %}            
         </form>
-        <hr>
+    {% endif %}
+
+    <h2 style="color: white;">Comments:</h2>
+    <form action="{% url 'see_listing' listing.id %}" method="POST">
+        {% csrf_token %}
+        {{ comment_form }}
+        <input class="btn btn-primary" type="submit" value="Post" name="commenting">
+    </form>
+    <hr>
     {% if comments %}
         {% for comment in comments %}
-            <p>Posted by: {{ comment.user }}</p>
-            <p>{{ comment.comment }}</p>
+            <div class="comment-text">    
+                <p>Posted by: <strong>{{ comment.user }}</strong></p>
+                <p>{{ comment.comment }}</p>
+                <br>
+                <p>{{ comment.comment_time }}</p>
+            </div>
             <br>
-            <p>{{ comment.comment_time }}</p>
-            <hr>
         {% endfor %}
     {% else %}
         <h3>There are no comments for this listing.</h3>

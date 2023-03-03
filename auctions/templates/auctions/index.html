@@ -2,12 +2,16 @@
 
 
 {% block body %}
-    <h2>Active Listings</h2>
+    {% if is_watchlist %}
+        <h2>Watchlist</h2>
+    {% else %}
+        <h2>Active Listings</h2>
+    {% endif %}
 
     {% if listings %}
         {% for item in listings %}
-            <a href="{% url 'see_listing' item.id %}">
-                <div class="listing">
+            <div class="listing">
+                <a href="{% url 'see_listing' item.id %}">
                     <div id="listing_text">
                         <h4>{{ item.title }}</h4>
                         <h6>{{ item.description|truncatechars:50 }}</h6>
@@ -26,9 +30,9 @@
                     {% if item.image_url %}
                         <img class="image" src="{{ item.image_url }}">
                     {% endif %}
-                </div>
-                <br>
-            </a>
+                </a>
+            </div>
+            <br>
         {% endfor %}
     {% else %}
         <strong>There are no listed items.</strong>

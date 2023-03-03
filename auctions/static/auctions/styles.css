@@ -1,34 +1,58 @@
 body {
     padding: 10px;
+    background-color: black;
+    color: white;
 }
 
 .listing {
     border: 1px solid lightgray;
+    border-radius: 5px;
     width: 90vw;
     height: 30vh;
     float: left;
     margin: 1vh;
     margin-left: 1px;
+    background-color: teal;
 }
 
 .full_listing {
     position: relative;
     border: 1px solid lightgray;
+    border-radius: 5px;
     width: 90vw;
     height: 75vh;
     float: left;
     margin: 1vh;
     margin-left: 1px;
+    color: black;
+    background-color: teal;
+}
+
+.comment-text {
+    background-color: pink;
+    color: black;
+    width: 90vw;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    margin: 1vh;
+}
+
+.enter-comment {
+    background-color: lightgray;
+    width: 80vw;
+    border-radius: 5px;
 }
 
 #listing_text {
     color: black;
+    border-radius: 5px;
     float: right;
     width: 15vw;
     margin-right: 50vw;
     height: 100%;
     padding-top: 10px;
     overflow-wrap: break-word;
+    background-color: pink;
 }
 
 #tags {
@@ -49,15 +73,14 @@ body {
     padding-bottom: 0%;
 }
 
-
 .image {
     width: 20%;
     height: 100%;
     object-fit: contain;
     float: left;
     margin-left: 2vw;
+    border-radius: 5px;
 }
-
 
 .full_image {
     height: 80%;
@@ -65,8 +88,8 @@ body {
     object-fit: contain;
     float: right;
     margin-right: 10vw;
+    border-radius: 5px;
 }
-
 
 .description_box {
     height: 10%;
@@ -74,7 +97,6 @@ body {
     float: left;
     word-wrap: break-word;
 }
-
 
 #full_tags {
     float: left;
@@ -87,9 +109,14 @@ body {
     padding: 0px;
 }
 
-
 .edit_btn {
     float: right;
     position: absolute;
     bottom: 5px;
+}
+
+.add-watch {
+    clear: both;
+    position: absolute;
+    right: 10vw;
 }
