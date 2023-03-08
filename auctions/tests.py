@@ -50,21 +50,6 @@ class ListModelTestCase(TestCase):
         listing = Listing.objects.create(user=user, title="Testing", description="description", start_bid=10.001)
         self.assertRaises(ValidationError, listing.full_clean)
     
-    def test_tag_adding(self):
-        listing = Listing.objects.first()
-        listing.tags.add("watch", "Car", "!!!")
-        listing_tags = set(listing.tags.names())
-        tag_names = {"watch", "Car", "!!!"}
-        self.assertEqual(listing_tags, tag_names)
-
-    def test_tag_delete(self):
-        listing = Listing.objects.first()
-        listing.tags.add("watch", "Car", "!!!")
-        listing.tags.remove("watch")
-        listing_tags = set(listing.tags.names())
-        tag_names = {"Car", "!!!"}
-        self.assertEqual(listing_tags, tag_names)
-
 
 class UserRegistrationFormTests(TestCase):
     def setUp(self):
@@ -154,7 +139,7 @@ class CreateListingTest(TestCase):
             'description': 'Test Description',
             'start_bid': 10.00,
             'image_url': 'http://www.google.com', # Not required
-            'tags': 'tag1, tag2' # Not required
+            'category': 'test_category' # Not required
         })
         form.instance.user = get_user(self.client)
         self.assertTrue(form.is_valid())
@@ -163,6 +148,6 @@ class CreateListingTest(TestCase):
         self.assertEqual(listing.description, 'Test Description')
         self.assertEqual(listing.start_bid, 10.00)
         self.assertEqual(listing.image_url, 'http://www.google.com')
-        self.assertEqual(set(listing.tags.names()), {'tag1', 'tag2'})
+        self.assertEqual(listing.category, 'test_category')
 
 

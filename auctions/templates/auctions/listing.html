@@ -20,8 +20,8 @@
             <h3><strong>${{ listing.start_bid }}</strong></h3>
             
             {% if listing.user == user%}
-                <p style="color: red;">You <strong>cannot</strong> bid on your own item.</p>
-            {% elif not user %}
+                <p style="color: yellow;">You <strong>cannot</strong> bid on your own item.</p>
+            {% elif not user.is_authenticated %}
                 <h5>To place a bid, <a href="{% url 'login' %}">Login</a></h5>
             {% else %}
                 <form action="{% url 'see_listing' listing.id %}" method="post">
@@ -40,12 +40,8 @@
         </div>
         <br>
 
-        {% if listing.tags %}
-            <ul id="full_tags">
-                {% for tag in listing.tags.all %}
-                    <li id="tag">#{{ tag }}</li>
-                {% endfor %}
-            </ul>
+        {% if listing.category %}
+            <h5 id="category">Category: <strong>{{ listing.category }}</strong></h5>
         {% endif %}
 
         {% if can_edit %}
@@ -68,11 +64,15 @@
     {% endif %}
 
     <h2 style="color: white;">Comments:</h2>
-    <form action="{% url 'see_listing' listing.id %}" method="POST">
-        {% csrf_token %}
-        {{ comment_form }}
-        <input class="btn btn-primary" type="submit" value="Post" name="commenting">
-    </form>
+    {% if user.is_authenticated %}
+        <form action="{% url 'see_listing' listing.id %}" method="POST">
+            {% csrf_token %}
+            {{ comment_form }}
+            <input class="btn btn-primary" type="submit" value="Post" name="commenting">
+        </form>
+    {% else %}
+        <h5>To make a comment, <a href="{% url 'login' %}">Login</a></h5>
+    {% endif %}
     <hr>
     {% if comments %}
         {% for comment in comments %}

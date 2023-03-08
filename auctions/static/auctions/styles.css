@@ -28,6 +28,10 @@ body {
     background-color: teal;
 }
 
+#category-list {
+    list-style-type: none;
+}
+
 .comment-text {
     background-color: pink;
     color: black;
@@ -55,18 +59,9 @@ body {
     background-color: pink;
 }
 
-#tags {
+#category {
     float: left;
-    text-align: center;
-    width: 100%;
-    list-style: none;
-    margin: 0px;
-    padding: 0px;
-}
-
-#tag {
-    float: left;
-    color: dodgerblue;
+    color: black;
     margin: 0px;
     padding: 2%;
     padding-top: 0%;
@@ -98,16 +93,6 @@ body {
     word-wrap: break-word;
 }
 
-#full_tags {
-    float: left;
-    text-align: center;
-    width: 100%;
-    position: absolute;
-    bottom: 5px;
-    list-style: none;
-    margin: 0px;
-    padding: 0px;
-}
 
 .edit_btn {
     float: right;

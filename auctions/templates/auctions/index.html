@@ -17,14 +17,10 @@
                         <h6>{{ item.description|truncatechars:50 }}</h6>
                         <h6><strong>Price: </strong>${{ item.start_bid }}<h6>
                         <br>
-                        {% if item.tags %}
-                            <ul id="tags">
-                            {% for tag in item.tags.all %}
-                                <li id="tag">#{{ tag }}</li>
-                            {% endfor %}
-                            </ul>
+                        {% if item.category %}
+                            <h5 id="category">Category: <strong>{{ item.category }}</strong></h5>
                         {% endif %}
-                        <br><br><br><br><hr>
+                        <br><br><br><hr>
                         <p style="color: gray;">Created: {{ item.list_time }}</p>
                     </div>
                     {% if item.image_url %}

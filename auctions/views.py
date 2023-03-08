@@ -80,7 +80,7 @@ def register(request):
             "form": RegisterForm()
         })
 
-
+@login_required(login_url= 'login')
 def create_listing_view(request):
     form = ListingForm()
 
@@ -89,6 +89,9 @@ def create_listing_view(request):
         if form.is_valid():
             try:
                 form.instance.user = request.user
+                form.instance.category = form.instance.category.lower()
+                if not form.instance.image_url:
+                    form.instance.image_url = 'https://www.publicdomainpictures.net/pictures/470000/nahled/image-not-found.png'
                 form.save()
             except IntegrityError:
                 return render(request, "auctions/listing_create.html", {
@@ -165,7 +168,10 @@ def see_listing(request, item_id):
         if "bidding" in request.POST:
             bid_form = BiddingForm(request.POST)
             if bid_form.is_valid():
-                if bid_form.cleaned_data['bid'] > listing.start_bid:            
+                if bid_form.cleaned_data['bid'] > listing.start_bid:
+                    bid_form.instance.user = request.user
+                    bid_form.instance.item = listing
+                    bid_form.save()          
                     listing.start_bid = bid_form.cleaned_data['bid']
                     listing.num_bids += 1
                     listing.save(update_fields=['start_bid', 'num_bids'])
@@ -182,7 +188,7 @@ def see_listing(request, item_id):
                     comment_form.save()
                     return render(request, "auctions/listing.html", context=context)
                 else:
-                    context["message"] = "Your bid must be greater than the current bid."
+                    context["message"] = "Your comment cannot be posted."
                     return render(request, "auctions/listing.html", context=context)
     else:
         return render(request, "auctions/listing.html", context=context)
@@ -205,3 +211,20 @@ def watchlist_view(request):
         "listings": watchlist
     }
     return render(request, "auctions/index.html", context=context)
+
+
+def categories(request):
+    categories = [category.get('category') for category in Listing.objects.values('category').distinct()]
+    context = {
+        "categories": categories,
+    }
+    return render(request, "auctions/categories.html", context)
+
+def category_listing(request, category):
+    category_listings = Listing.objects.filter(category=category)
+    
+    context = {
+        'is_watchlist': False,
+        "listings": category_listings
+    }
+    return render(request, "auctions/index.html", context)
