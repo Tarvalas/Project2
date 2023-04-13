@@ -4,6 +4,7 @@ from .models import User, Listing, Bid, Comment
 
 class ListingInline(admin.TabularInline):
     model = Listing
+    fk_name = 'winner'
 
 class UserAdmin(admin.ModelAdmin):
     inlines = [ListingInline] 

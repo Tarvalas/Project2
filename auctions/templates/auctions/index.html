@@ -18,7 +18,7 @@
                         <h6><strong>Price: </strong>${{ item.start_bid }}<h6>
                         <br>
                         {% if item.category %}
-                            <h5 id="category">Category: <strong>{{ item.category }}</strong></h5>
+                            <h5 id="category">Category: <a href="{% url 'category_listing' item.category %}"><strong>{{ item.category }}</strong></a></h5>
                         {% endif %}
                         <br><br><br><hr>
                         <p style="color: gray;">Created: {{ item.list_time }}</p>

@@ -23,7 +23,7 @@
                 <p style="color: yellow;">You <strong>cannot</strong> bid on your own item.</p>
             {% elif not user.is_authenticated %}
                 <h5>To place a bid, <a href="{% url 'login' %}">Login</a></h5>
-            {% else %}
+            {% elif listing.active %}
                 <form action="{% url 'see_listing' listing.id %}" method="post">
                     {% csrf_token %}
                     {% for field in bid_form %}
@@ -34,6 +34,8 @@
                     {% endfor %}        
                     <input class="btn btn-primary" type="submit" value="Place Bid" name="bidding">
                 </form>
+            {% else %}
+                <h3>This auction is closed.</h3>
             {% endif %}
             <br><br>
             <h6>Posted by: <strong>{{ listing.user }}</strong></h6>
@@ -41,11 +43,20 @@
         <br>
 
         {% if listing.category %}
-            <h5 id="category">Category: <strong>{{ listing.category }}</strong></h5>
+            <h5 id="category">Category: <a href="{% url 'category_listing' listing.category %}"><strong>{{ listing.category }}</strong></a></h5>
         {% endif %}
 
-        {% if can_edit %}
-            <button class="btn btn-primary edit_btn" type="button"><a style="color: white;" href="{% url 'edit_listing' listing.id %}">Edit Listing</a></button>
+        {% if can_edit and listing.active %}
+        <div class="poster-buttons">
+            <form action="{% url 'edit_listing' listing.id %}" method="GET">
+                {% csrf_token %}
+                <input class="btn btn-primary edit_btn" type="submit" value="Edit Listing" name="edit">
+            </form>
+            <form action="{% url 'see_listing' listing.id %}" method="POST">
+                {% csrf_token %}
+                <input class="btn btn-danger" type="submit" value="End Auction" name="end">
+            </form>
+        </div>
         {% endif %}
 
     </div>

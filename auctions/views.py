@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 
-from .models import User, Listing, Comment
+from .models import User, Listing, Comment, Bid
 from .forms import RegisterForm, LoginForm, ListingForm, BiddingForm, CommentForm
 
 
@@ -126,7 +126,8 @@ def edit_listing_view(request, item_id):
         else:
             return render(request, "auctions/listing_edit.html", {
                 "message": "Error with form.",
-                "form": form
+                "form": form,
+                "listing": listing
             })
 
     if listing.user != request.user:
@@ -190,7 +191,20 @@ def see_listing(request, item_id):
                 else:
                     context["message"] = "Your comment cannot be posted."
                     return render(request, "auctions/listing.html", context=context)
+        if "end" in request.POST:
+            listing.active = False
+            max_bid = Bid.objects.order_by('bid').last()
+            listing.winner = max_bid.user
+            listing.save()
+            return HttpResponseRedirect(reverse("see_listing", args = [item_id]))
     else:
+        if not listing.active:
+            if not listing.winner:
+                context['message'] = f"This auction for {listing.title} has been closed with no winner."
+            elif request.user == listing.winner:
+                context['message'] = f"Congratulations! You have won this auction for {listing.title}."
+            else:
+                context['message'] = f"The auction for {listing.title} has a winner and has been closed."
         return render(request, "auctions/listing.html", context=context)
 
 
@@ -219,6 +233,7 @@ def categories(request):
         "categories": categories,
     }
     return render(request, "auctions/categories.html", context)
+
 
 def category_listing(request, category):
     category_listings = Listing.objects.filter(category=category)

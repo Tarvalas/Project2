@@ -20,7 +20,8 @@ class Listing(models.Model):
     category = models.CharField(max_length=30, null=True, blank=True)
     list_time = models.DateTimeField(auto_now_add=True)
     num_bids = models.IntegerField(default=0)
-    winner = models.CharField(max_length=50, blank=True, null=True)
+    winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='winner', null=True)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.title}"
